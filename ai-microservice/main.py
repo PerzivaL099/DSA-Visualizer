@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware # Agregamos esto
 from pydantic import BaseModel
 import requests
 
 app = FastAPI(title="DSA Visualizer AI Tutor API")
+
+# Configuramos CORS para permitir que Next.js (puerto 3000) hable con esta API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # En producción pondríamos "http://localhost:3000"
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 1. Definimos la estructura de datos que esperamos recibir del Frontend (Next.js)
 class CodeSubmission(BaseModel):

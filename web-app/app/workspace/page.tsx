@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Editor from '@monaco-editor/react'; // ¡Importamos el nuevo motor de VS Code!
 
 export default function WorkspacePage() {
   // Estados para manejar el código, el estado de carga y la respuesta de la IA
@@ -11,14 +12,12 @@ export default function WorkspacePage() {
   // Función que se comunica con tu microservicio de Python
   const handleAskAI = async () => {
     setIsLoading(true);
-    setHint(""); // Limpiamos la pista anterior
+    setHint(""); 
     
     try {
       const response = await fetch("http://127.0.0.1:8000/api/v1/tutor/hint", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           problem_title: "Two Sum",
           problem_description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
@@ -30,7 +29,7 @@ export default function WorkspacePage() {
       if (!response.ok) throw new Error("Error en la respuesta del servidor");
       
       const data = await response.json();
-      setHint(data.hint); // Guardamos la pista que nos dio Ollama
+      setHint(data.hint);
       
     } catch (error) {
       console.error(error);
@@ -67,23 +66,37 @@ export default function WorkspacePage() {
       {/* PANEL DERECHO: Editor de Código y Tutor IA */}
       <div className="w-2/3 flex flex-col gap-4">
         
-        {/* Editor de Código Falso (Textarea) */}
+        {/* NUEVO EDITOR DE CÓDIGO (Monaco) */}
         <div className="flex-1 bg-[#1e1e1e] rounded-xl border border-slate-700 shadow-sm overflow-hidden flex flex-col">
           <div className="bg-[#2d2d2d] px-4 py-2 flex justify-between items-center border-b border-slate-700">
-            <span className="text-slate-300 text-sm font-mono">solution.py</span>
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm transition-colors">
+            <span className="text-slate-300 text-sm font-mono flex items-center gap-2">
+               solution.py
+            </span>
+            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm font-medium transition-colors">
               Run Code ▶
             </button>
           </div>
-          <textarea 
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="flex-1 w-full bg-transparent text-slate-300 font-mono text-sm p-4 focus:outline-none resize-none"
-            spellCheck="false"
-          />
+          
+          <div className="flex-1 pt-2">
+            <Editor
+              height="100%"
+              defaultLanguage="python"
+              theme="vs-dark"
+              value={code}
+              onChange={(value) => setCode(value || "")}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                wordWrap: "on",
+                scrollBeyondLastLine: false,
+                smoothScrolling: true,
+                padding: { top: 10 },
+              }}
+            />
+          </div>
         </div>
 
-        {/* Consola de Tutor IA */}
+        {/* Consola de Tutor IA (Se mantiene igual) */}
         <div className="h-1/3 bg-white rounded-xl border border-blue-200 shadow-sm p-4 flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold text-blue-800 flex items-center gap-2">
@@ -104,14 +117,14 @@ export default function WorkspacePage() {
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 <div className="w-2 h-2 bg-blue-500 rounded-full animation-delay-200"></div>
                 <div className="w-2 h-2 bg-blue-500 rounded-full animation-delay-400"></div>
-                <span className="ml-2 text-sm">El tutor está leyendo tu código...</span>
+                <span className="ml-2 text-sm font-medium">El tutor está leyendo tu código...</span>
               </div>
             ) : hint ? (
               <p className="text-sm text-slate-700 leading-relaxed font-medium">
                 {hint}
               </p>
             ) : (
-              <p className="text-sm text-slate-400 italic">
+              <p className="text-sm text-slate-500 italic">
                 Presiona "Ask AI Tutor" para recibir una pista conceptual basada en tu código actual. No te daremos la respuesta directa.
               </p>
             )}

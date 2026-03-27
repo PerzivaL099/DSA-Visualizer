@@ -13,14 +13,18 @@ class CodeSubmission(BaseModel):
 
 @app.post("/api/v1/tutor/hint")
 def get_hint(submission: CodeSubmission):
-    # 2. El "System Prompt": Las reglas estrictas para tu tutor IA
-    system_prompt = """You are an expert Computer Science tutor helping a student prepare for technical interviews.
-    RULES:
-    1. NEVER write the exact code solution.
-    2. NEVER give away the answer directly.
-    3. Ask a guiding question or point out the bottleneck in their current approach.
-    4. Keep your response under 3 sentences and be encouraging."""
-
+   # 2. El "System Prompt": Reglas a prueba de modelos tercos
+    system_prompt = """You are a strict Socratic tutor for Data Structures and Algorithms.
+    A student will show you their code. 
+    YOUR ONLY TASK is to provide ONE short conceptual hint to improve time complexity.
+    
+    CRITICAL RESTRICTIONS:
+    - YOU MUST NOT write ANY code snippets. Zero code.
+    - YOU MUST NOT mention specific variable names for the solution.
+    - KEEP IT UNDER 3 SENTENCES.
+    
+    Example response: "Your current nested loop gives an O(N^2) time complexity. Is there a way we can store the numbers we've already seen to look them up instantly in O(1) time?"
+    """
     # 3. El "User Prompt": Juntamos el problema con el código del usuario
     user_prompt = f"""
     Problem: {submission.problem_title}
